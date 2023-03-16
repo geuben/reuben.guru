@@ -1,0 +1,94 @@
+alias: Sync Battery State
+description: ""
+trigger:
+  - platform: state
+    entity_id: input_select.desired_battery_mode
+condition: []
+action:
+  - choose:
+      - conditions:
+          - condition: state
+            entity_id: input_select.desired_battery_mode
+            state: Disabled
+          - condition: not
+            conditions:
+              - condition: state
+                entity_id: select.solaredge_storage_control_mode
+                state: Disabled
+            alias: If battery is not already disabled
+        sequence:
+          - service: select.select_option
+            data:
+              option: Disabled
+            target:
+              entity_id: select.solaredge_storage_control_mode
+            alias: Set battery to Disabled
+      - conditions:
+          - condition: state
+            entity_id: input_select.desired_battery_mode
+            state: Maximize Self Consumption
+          - condition: not
+            conditions:
+              - condition: state
+                entity_id: select.solaredge_storage_control_mode
+                state: Maximize Self Consumption
+            alias: If battery is not already in MSC
+        sequence:
+          - service: select.select_option
+            data:
+              option: Maximize Self Consumption
+            target:
+              entity_id: select.solaredge_storage_control_mode
+            alias: Set battery to MSC
+      - conditions:
+          - condition: state
+            entity_id: input_select.desired_battery_mode
+            state: Time of Use
+          - condition: not
+            conditions:
+              - condition: state
+                entity_id: select.solaredge_storage_control_mode
+                state: Time of Use
+            alias: If battery is not already in TOU
+        sequence:
+          - service: select.select_option
+            data:
+              option: Time of Use
+            target:
+              entity_id: select.solaredge_storage_control_mode
+            alias: Set battery to TOU
+      - conditions:
+          - condition: state
+            entity_id: input_select.desired_battery_mode
+            state: Backup Only
+          - condition: not
+            conditions:
+              - condition: state
+                entity_id: select.solaredge_storage_control_mode
+                state: Backup Only
+            alias: If battery is not already in Backup Only
+        sequence:
+          - service: select.select_option
+            data:
+              option: Backup Only
+            target:
+              entity_id: select.solaredge_storage_control_mode
+            alias: Set battery to backup only
+      - conditions:
+          - condition: state
+            entity_id: input_select.desired_battery_mode
+            state: Remote Control
+          - condition: not
+            conditions:
+              - condition: state
+                entity_id: select.solaredge_storage_control_mode
+                state: Remote Control
+            alias: If battery is not already in Remote Control
+        sequence:
+          - service: select.select_option
+            data:
+              option: Remote Control
+            target:
+              entity_id: select.solaredge_storage_control_mode
+            alias: Set battery to Remote Control
+mode: single

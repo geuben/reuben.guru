@@ -1,0 +1,36 @@
+alias: Limit Battery % (new)
+description: Stop the SolarEdge battery from charging from grid above a set %
+trigger:
+  - platform: state
+    entity_id:
+      - sensor.solaredge_battery1_state_of_charge
+condition:
+  - condition: numeric_state
+    entity_id: sensor.solaredge_battery1_state_of_charge
+    above: input_number.desired_battery_percentage
+  - condition: time
+    after: "02:30:00"
+    before: "06:30:00"
+    alias: "In off-peak window "
+  - condition: state
+    state: Time of Use
+    alias: Battery mode is Time of Use (charging)
+    entity_id: input_select.desired_battery_mode
+action:
+  - service: input_select.select_option
+    data:
+      option: Disabled
+    target:
+      entity_id: input_select.desired_battery_mode
+    alias: Set desired battery mode to Disabled
+  - wait_for_trigger:
+      - platform: time
+        at: "06:30:00"
+    alias: Wait until off-peak ends
+  - service: input_select.select_option
+    data:
+      option: Time of Use
+    target:
+      entity_id: input_select.desired_battery_mode
+    alias: Set desired battery mode to Time of Use
+mode: single
