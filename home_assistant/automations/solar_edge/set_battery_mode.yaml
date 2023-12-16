@@ -1,0 +1,80 @@
+alias: Set Battery Mode
+sequence:
+  - choose:
+      - conditions:
+          - condition: template
+            value_template: "{{ mode == \"Self Consume\" }}"
+            alias: Self Consume
+        sequence:
+          - service: input_select.select_option
+            data:
+              option: Maximize Self Consumption
+            target:
+              entity_id: input_select.desired_battery_mode
+            alias: Set Battery to Maximize Self Consumption
+      - conditions:
+          - condition: template
+            value_template: "{{ mode == \"Export\" }}"
+            alias: Export
+        sequence:
+          - service: input_select.select_option
+            data:
+              option: Remote Control
+            target:
+              entity_id: input_select.desired_battery_mode
+            alias: Set Battery To Remote Control
+          - service: input_select.select_option
+            data:
+              option: Maximize export
+            target:
+              entity_id: input_select.desired_battery_remote_command_mode
+            alias: Set battery remote command mode to Maximize export
+          - service: input_select.select_option
+            data:
+              option: Maximize export
+            target:
+              entity_id:
+                - input_select.desired_battery_default_mode
+            alias: Set battery default mode to Maximize export
+      - conditions:
+          - condition: template
+            value_template: "{{ mode == \"Import\" }}"
+            alias: Import
+        sequence:
+          - service: input_select.select_option
+            data:
+              option: Charge from PV and AC
+            target:
+              entity_id: input_select.desired_battery_remote_command_mode
+            alias: Set Remote Command mode to Charge from PV and AC
+          - service: input_select.select_option
+            data:
+              option: Charge from PV and AC
+            target:
+              entity_id: input_select.desired_battery_default_mode
+            alias: Set Desired Battery Default Mode to Charge from PV and AC
+          - delay:
+              hours: 0
+              minutes: 0
+              seconds: 5
+              milliseconds: 0
+          - service: input_select.select_option
+            data:
+              option: Remote Control
+            target:
+              entity_id: input_select.desired_battery_mode
+            alias: Set Desired Battery Mode to Remote Control
+mode: queued
+icon: mdi:home-battery
+fields:
+  mode:
+    description: Battery Mode
+    example: State change
+    name: Mode
+    selector:
+      select:
+        options:
+          - Self Consume
+          - Export
+          - Import
+    required: true
