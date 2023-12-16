@@ -1,0 +1,72 @@
+alias: Saving Sessions
+description: ""
+trigger:
+  - platform: calendar
+    event: start
+    offset: "0:0:0"
+    entity_id: calendar.saving_sessions
+    id: Saving Session Started
+  - platform: calendar
+    event: end
+    offset: "0:0:0"
+    entity_id: calendar.saving_sessions
+    id: Saving Session Ended
+condition: []
+action:
+  - if:
+      - condition: trigger
+        id:
+          - Saving Session Started
+    then:
+      - service: automation.turn_off
+        data:
+          stop_actions: true
+        target:
+          entity_id: automation.intelligent_octopus_battery_charge
+        alias: Turn off Intelligent Octopus Battery Control
+      - service: switch.turn_off
+        data: {}
+        target:
+          entity_id: switch.octopus_smart_charging
+        alias: Turn off Intelligent Octopus Smart Charging
+      - service: automation.turn_on
+        data: {}
+        target:
+          entity_id: automation.zappi_charge_mode
+        alias: Turn on Zappi Charge Mode automation
+      - service: input_select.select_option
+        data:
+          option: Stopped
+        target:
+          entity_id: input_select.desired_zappi_mode
+        alias: Change Zappi to Stopped
+      - service: script.set_battery_mode
+        data:
+          mode: Export
+    else:
+      - service: script.set_battery_mode
+        data:
+          mode: Self Consume
+      - service: input_select.select_option
+        data:
+          option: Eco+
+        target:
+          entity_id: input_select.desired_zappi_mode
+        alias: Set Zappi to Eco+
+      - service: automation.turn_off
+        data:
+          stop_actions: true
+        target:
+          entity_id: automation.zappi_charge_mode
+        alias: Turn off Zappi Charge Mode automation
+      - service: switch.turn_on
+        data: {}
+        target:
+          entity_id: switch.octopus_smart_charging
+        alias: Turn on Intelligent Octopus Smart Charging
+      - service: automation.turn_on
+        data: {}
+        target:
+          entity_id: automation.intelligent_octopus_battery_charge
+        alias: Turn on Intelligent Octopus Battery Control
+mode: single
