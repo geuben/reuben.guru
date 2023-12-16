@@ -1,0 +1,55 @@
+alias: Intelligent Octopus - Battery Charge
+description: ""
+trigger:
+  - platform: state
+    entity_id:
+      - binary_sensor.octopus_intelligent_slot
+condition: []
+action:
+  - choose:
+      - conditions:
+          - condition: state
+            entity_id: binary_sensor.octopus_intelligent_slot
+            state: "on"
+        sequence:
+          - service: script.set_battery_mode
+            data:
+              mode: Import
+            alias: Set Battery to Import
+      - conditions:
+          - condition: state
+            entity_id: binary_sensor.octopus_intelligent_slot
+            state: "off"
+        sequence:
+          - service: script.set_battery_mode
+            data:
+              mode: Self Consume
+            alias: Set battery mode to Self Consume
+      - conditions:
+          - condition: state
+            entity_id: binary_sensor.octopus_intelligent_slot
+            state: unavailable
+        sequence:
+          - if:
+              - condition: time
+                after: "23:00:00"
+                before: "05:30:00"
+                weekday:
+                  - mon
+                  - tue
+                  - wed
+                  - thu
+                  - fri
+                  - sat
+                  - sun
+            then:
+              - service: script.set_battery_mode
+                data:
+                  mode: Import
+                alias: Set battery to import
+            else:
+              - service: script.set_battery_mode
+                data:
+                  mode: Self Consume
+                alias: Set battery mode to Self Consume
+mode: single
